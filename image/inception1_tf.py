@@ -1,4 +1,7 @@
-"""Simple image classification with Inception.
+"""
+Source: https://github.com/tensorflow/models/blob/master/tutorials/image/imagenet/classify_image.py
+
+Simple image classification with Inception.
 Run image classification with Inception trained on ImageNet 2012 Challenge data
 set.
 This program creates a graph from a saved GraphDef protocol buffer,

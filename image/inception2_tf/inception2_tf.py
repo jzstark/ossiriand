@@ -1,3 +1,5 @@
+# Source: https://github.com/tensorflow/models/blob/master/slim/slim_walkthrough.ipynb
+
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
