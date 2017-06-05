@@ -4,6 +4,8 @@ Suppose all models are stored at `~/Models`
 
 Supported models:
 
+## Classification
+
 - [Inception1_tf.py](./incpetion1_tf.py): 
     + Both graph and weights in one big .pb file. Key function: `tf.import_graph_def()`
     + Usage: `python inception1_tf.py --model_dir  --image_file --num_top_predictions`
@@ -20,4 +22,5 @@ Supported models:
     + Use mxnet (compile and install); perquisite: `scikit-image`
     + Load graph and weight from files (in the format of .params and .json) 
     + Usage: download model manually to ~/Models/inception/4; modify the dir of images directly in the script, and run. (Not ready to run yet)
-    
+
+
