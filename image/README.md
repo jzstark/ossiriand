@@ -34,7 +34,7 @@ Supported models:
 - Original repo: https://github.com/tensorflow/models/tree/master/im2txt
 - License: Apache-2.0
 
-## Description
+### Description
 
 - Image captioning: inference text description given an image of any size.
 - Need to manually download the pre-trained model from the model files repo, which is trained on MOCOCO dataset.
@@ -42,7 +42,27 @@ Supported models:
 - Usage: `python ./im2txt/run_inference.py --input_files picture1.jpg,picture2.jpg` (no space between picture names)
 - Ouput: top-3 possible sentence that describes each given picture, together with possibility.
 
-## Performance
+### Performance
 
 - See the paper for performance test result.
 - In the 2015 MS COCO challenge, this model ranked first position using both automatic and human evaluations.
+
+## Object Detection
+
+### Information
+- name: [obj_detect.py](./object_detection/obj_detect.py)
+- [model files collection](https://github.com/tensorflow/models/blob/master/object_detection/g3doc/detection_model_zoo.md)
+- Original Repo: [Tensorflow/models](https://github.com/tensorflow/models/blob/master/object_detection)
+- License: Apache-2.0
+
+### Description
+
+- Input: Image; Output: image labelld (on the image with rectangular) with recognized object
+- Pre-requisit: Tensorflow 1.2; Protobuf 2.6 or above.
+- Usage: modify [obj_detect.py](./object_detection/obj_detect.py) directly.
+
+### Performance 
+
+- State-of-the-art
+
+
