@@ -99,3 +99,5 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+./Text/NER/thirdparty/GloVe-1.2/
