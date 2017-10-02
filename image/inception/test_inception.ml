@@ -31,12 +31,12 @@ let decode_predictions ?(top=5) preds =
   let tp = Dense.Matrix.S.top preds top in 
   Printf.printf "\nTop %d Predictions:\n" top;
   Array.iteri (fun i x -> 
-    Printf.printf "Prediction #%d (%.2f%%) : " i (preds.{x.(0), x.(1)} *. 100.);
+    Printf.printf "Prediction #%d (%.2f%%) : " i ((Dense.Matrix.S.get preds x.(0) x.(1)) *. 100.);
     Printf.printf "%s\n" (Hashtbl.find h x.(1)) 
   ) tp
 
 let _ = 
-  let nn  = Graph.load "inception_owl.network" in 
+  let nn  = Graph.load "inception_owl2.network" in 
   let img = get_input_data "panda1.ppm" in 
-  let preds = Graph.model_cnn nn img in
+  let preds = Graph.model nn img in
   decode_predictions preds

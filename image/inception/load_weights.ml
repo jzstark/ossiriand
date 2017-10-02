@@ -21,7 +21,6 @@ let print_array a =
   (* Printf.printf "|]; Length: %d.\n" (a.(1) * a.(2) * a.(3)) *)
   Printf.printf "|]\n"
 
-
 let _ = 
 
 let h = Hashtbl.create 368 in (* manually get; 94 conv2ds, 94 batch norms x 3, and 2 for linear (w and b) *)
@@ -113,15 +112,13 @@ let dense_node = nodes.(312) in
 let wb = Neuron.mkpar dense_node.neuron in 
 (* get 2darry w and change to matrix *)
 let w_new = Hashtbl.find h "linear_w" in 
-let w_new = Dense.Matrix.S.of_ndarray w_new in
 (* get 1darray b, reshape, and convert to matrix *)
 let b_new = Hashtbl.find h "linear_b" in 
 let b_dim = Array.append [|1|] (Dense.Ndarray.S.shape b_new) in 
 let b_new = Dense.Ndarray.S.reshape b_new b_dim  in
-let b_new = Dense.Matrix.S.of_ndarray b_new in 
 (* fill in *)
-wb.(0) <- (Neuron.Mat w_new);
-wb.(1) <- (Neuron.Mat b_new);
+wb.(0) <- (Neuron.Arr w_new);
+wb.(1) <- (Neuron.Arr b_new);
 Neuron.update dense_node.neuron wb;
 
 (* save the model *)
