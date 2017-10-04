@@ -94,7 +94,7 @@ let get_statistics nn_model load_data take_sample =
   let l = Dense.Matrix.D.(re_avg - re_std) in 
   num_nodes, re_avg, u, l
 
-
+(*
 let get_output_size nn_model = 
   let nn = nn_model () in 
   let nodes = nn.topo in 
@@ -124,6 +124,7 @@ let get_output_size nn_model =
   let out_sizes = Dense.Matrix.D.of_array outs 1 num_nodes in 
   let out_sizes = Dense.Matrix.D.div_scalar out_sizes (1024. *. 1024. /. 4.) in  (*float32 = 4B; use MB as unit *)
   out_sizes 
+*)
 
 let get_nodes_name nn_model = 
   let nn = nn_model () in 
@@ -165,7 +166,7 @@ let plot_latency_vgg16 ?(name="") =
 
   let avg = Dense.Matrix.D.load_txt "vgg16_avg.save.txt" in 
 
-  let output_sizes = get_output_size make_vgg_network in 
+  (* let output_sizes = get_output_size make_vgg_network in *)
   let node_names   = get_nodes_name  make_vgg_network in 
   let num_nodes =  Array.length node_names in 
 
