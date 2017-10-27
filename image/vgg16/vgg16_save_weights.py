@@ -1,7 +1,7 @@
 import h5py
 import numpy as np
 
-fname = "vgg16_weights_tf_dim_ordering_tf_kernels.h5"
+fname = "/home/stark/.keras/models/vgg16_weights_tf_dim_ordering_tf_kernels.h5"
 dfname = 'vgg16_owl.hdf5'
 
 f = h5py.File(fname, 'r')
