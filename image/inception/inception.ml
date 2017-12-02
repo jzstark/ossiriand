@@ -8,6 +8,10 @@ open Neural
 open Neural.S
 open Neural.S.Graph
 
+#zoo "e7d8b1f6fbe1d12bb4a769d8736454b9" (* LoadImage *)
+
+let gist_id = "9428a62a31dbea75511882ab8218076f"
+
 let channel_last = true (* The same in Keras Conv layer *)
 let include_top = true  (* if false, no final Dense layer *)
 let img_size = 299      (* include_top = true means img_size have to be exact 299 *)
@@ -167,42 +171,59 @@ let model () =
   in print nn;
   nn
 
+(* return inceptionv3 network with weights loaded *)
+let load () = 
+  let network_path = Sys.getenv "HOME" ^ "/.owl/zoo/" ^ gist_id ^ "/inception_owl.network" in  
+  let nn = Graph.load network_path in 
+  nn
 
-(*
-(* obviously we need ImageNet data rather than CIFAR *)
-let prepare_training_data () = 
+(* a helper function to expand path to absolute path *)
+let expandpath path = 
+  let r = Str.regexp "~" in 
+  Str.replace_first r (Sys.getenv "HOME") path
 
-  let datasets = Array.make 5 (Dense.Ndarray.S.zeros [|1;1;1;1|]) in 
-  let labels   = Array.make 5 (Dense.Matrix.S.zeros 1 1) in 
-  for i = 1 to 5 do 
-      let x, _, y = Dataset.load_cifar_train_data i in 
-      Array.set datasets (i-1) x;
-      Array.set labels (i-1) y;
-  done;
 
-  let x = Dense.Ndarray.S.concatenate ~axis:0 datasets in 
-  let y = Dense.Matrix.S.concatenate labels in 
-  (* let x = Dense.Ndarray.S.slice [[];[];[];[0]] x in *)
-  let [|s1;s2;s3;s4|] = Dense.Ndarray.S.shape x in 
-  let wy, hy = Dense.Matrix.S.shape y in 
-  Printf.printf "data shape: (%d, %d, %d, %d)\nlabels shape: (%d, %d).\n" s1 s2 s3 s4 wy hy;
-  Dense.Ndarray.S.save x "cifar10_data";
-  Dense.Matrix.S.save y "cifar10_labels";
-  ()
+(* input: name of input image; output: 1x1000 ndarray *)
+let infer img = 
+  let nn = load () in 
+  let prefix = Filename.remove_extension img in
+  let new_name = prefix ^ ".ppm" in 
+  let _ = Sys.command ("convert -resize 299x299\\! " ^ img ^ " " ^ new_name) in
+  let img_ppm = LoadImage.(read_ppm (expandpath new_name) |> extend_dim |> normalise) in 
+  Graph.model nn img_ppm
 
-let train_cifar10_keras_graph () =
+(* input: 1x1000 ndarray; output: top-N inference result list, 
+    each element in the form of [class: string; propability: float] *)
+let to_tuples ?(top=5) preds = 
+  let dict_path = Sys.getenv "HOME" ^ "/.owl/zoo/" ^ gist_id ^ "/imagenet1000.dict" in 
+  let h = Owl_utils.marshal_from_file dict_path in 
+  let tp = Dense.Matrix.S.top preds top in 
 
-  let nn = model () in 
-  (* let x, y = prepare_training_data () in *)
-  let x = Dense.Ndarray.S.load "cifar10_data" in 
-  let y = Dense.Matrix.S.load "cifar10_labels" in
-  let x = Dense.Ndarray.S.div_scalar x 255. in 
-  let params = Params.config
-    ~batch:(Batch.Mini 32) ~learning_rate:(Learning_Rate.RMSprop (0.0001, 0.9)) 1. in  (*0.0001*)
-  Graph.train_cnn ~params nn x y
-  
-let _ = 
-  (* prepare_training_data () *)
-  (* train_cifar10_keras_graph () *)
-  ()
-*)
+  let results = Array.make top ("type", 0.) in 
+  Array.iteri (fun i x -> 
+    let cls  = Hashtbl.find h x.(1) in 
+    let prop = Dense.Ndarray.S.get preds [|x.(0); x.(1)|] in 
+    Array.set results i (cls, prop);
+  ) tp;
+  results
+
+(* input: 1x1000 ndarray; output: top-N inference result as a json string *)
+let to_json ?(top=5) preds = 
+  let dict_path = Sys.getenv "HOME" ^ "/.owl/zoo/" ^ gist_id ^ "/imagenet1000.dict" in 
+  let h = Owl_utils.marshal_from_file dict_path in
+  let tp = Dense.Matrix.S.top preds top in
+
+  let assos = Array.make top "" in 
+  Array.iteri (fun i x -> 
+    let cls  = Hashtbl.find h x.(1) in 
+    let prop = Dense.Matrix.S.get preds x.(0) x.(1) in 
+    let p = "{\"class\":\"" ^ cls ^ "\", \"prop\": " ^ (string_of_float prop) ^ "}," in 
+    Array.set assos i p 
+  ) tp;
+
+  let str  = Array.fold_left (^) "" assos in 
+  let str  = String.sub str 0 ((String.length str) - 1) in
+  let json = "[" ^ str ^ " ]" in 
+  json
+
+let _ = ()

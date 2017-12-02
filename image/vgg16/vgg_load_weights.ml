@@ -112,18 +112,17 @@ Array.iter (fun (n : node) ->
     Printf.printf "%s: " nname; 
     count := !count + 1;
     let w_new = Hashtbl.find h (nname ^ "_w") in
-    let w_new = Dense.Matrix.S.of_ndarray w_new in 
+
 
     let b_new = Hashtbl.find h (nname ^ "_b") in
     let b_dim = Array.append [|1|] (Dense.Ndarray.S.shape b_new) in 
     let b_new = Dense.Ndarray.S.reshape b_new b_dim in
-    let b_new = Dense.Matrix.S.of_ndarray b_new in
 
     let a, b = Dense.Matrix.S.shape w_new in 
     print_array [|a; b|];
 
-    wb.(0) <- (Neuron.Mat w_new);
-    wb.(1) <- (Neuron.Mat b_new);
+    wb.(0) <- (Neuron.Arr w_new);
+    wb.(1) <- (Neuron.Arr b_new);
     Neuron.update n.neuron wb
 ) nodes ;
 

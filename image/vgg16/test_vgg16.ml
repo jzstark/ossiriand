@@ -9,30 +9,23 @@ open Neural
 open Neural.S
 
 let get_input_data img_name = 
-  let _, _, _, img = LoadImage.img_to_owl img_name in
-  let shape = Dense.Ndarray.S.shape img in
-  let shape = Array.append [|1|] shape in
-  let img = Dense.Ndarray.S.reshape img shape in 
-  
-  (* Do NOT use this preprocessing here!!! *)
-  (*
-  let img = Dense.Ndarray.S.div_scalar img 255. in 
-  let img = Dense.Ndarray.S.sub_scalar img 0.5  in
-  let img = Dense.Ndarray.S.mul_scalar img 2.   in
-  *)
-  img
+  LoadImage.(read_ppm img_name |> extend_dim)
 
-let decode_predictions ?(top=5) preds = 
-  let h = Decode.load_dict () in 
+let to_tuples ?(top=5) preds = 
+  let dict_path = "imagenet1000.dict" in 
+  let h = Owl_utils.marshal_from_file dict_path in 
   let tp = Dense.Matrix.S.top preds top in 
-  Printf.printf "\nTop %d Predictions:\n" top;
+
+  let results = Array.make top ("type", 0.) in 
   Array.iteri (fun i x -> 
-    Printf.printf "Prediction #%d (%.2f%%) : " i ((Dense.Matrix.S.get preds x.(0) x.(1)) *. 100.);
-    Printf.printf "%s\n" (Hashtbl.find h x.(1)) 
-  ) tp
+    let cls  = Hashtbl.find h x.(1) in 
+    let prop = Dense.Ndarray.S.get preds [|x.(0); x.(1)|] in 
+    Array.set results i (cls, prop);
+  ) tp;
+  results
 
 let _ = 
   let nn  = Graph.load "vgg16_owl.network" in 
   let img = get_input_data "panda.ppm" in 
   let preds = Graph.model nn img in
-  decode_predictions preds
+  to_tuples preds
