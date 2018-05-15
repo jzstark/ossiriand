@@ -44,10 +44,15 @@ let w = H5.read_float_genarray input "linear_w" C_layout in
 let b = H5.read_float_genarray input "linear_b" C_layout in 
 Hashtbl.add h "linear_w" (Dense.Ndarray.Generic.cast_d2s w);
 Hashtbl.add h "linear_b" (Dense.Ndarray.Generic.cast_d2s b); 
-(*actually, we should not put the w and b as two seperate items, since they belong to a same node *)
+(* actually, we should not put the w and b as two seperate items, since they belong to a same node *)
+
+(* run this step if you want to save the hash table first *)
+(* Owl_utils.marshal_to_file h "inceptionv3.htb";
+let h = Owl_io.marshal_from_file "inceptionv3.htb"; *)
+
 
 (* load network structure *)
-let nn = InceptionV3.model () in 
+let nn = InceptionV3.make_network 299 in 
 
 (* Graph.init nn *)
 (* Array.iter (fun n -> Neuron.init n.neuron) nn.topo; *)
@@ -122,4 +127,7 @@ wb.(1) <- (Neuron.Arr b_new);
 Neuron.update dense_node.neuron wb;
 
 (* save the model *)
-save nn "inception_owl2.network"
+save nn "inception_owl.network"
+
+(* do NOT save the weight, since we need the mean/variance information,
+ * which are not included in weights. *)
