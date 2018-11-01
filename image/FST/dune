@@ -1,0 +1,3 @@
+(executable
+ (name hdf5_to_owl)
+ (libraries owl hdf5_caml))
