@@ -1,0 +1,4 @@
+(executable
+ (name load_weights)
+ (flags (:standard -warn-error -A))
+ (libraries owl hdf5_caml))
